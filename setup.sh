@@ -1,0 +1,2 @@
+export STEM=`pwd`
+
