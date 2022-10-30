@@ -1,43 +1,74 @@
-// `include "hams_pkg.vh"
-`timescale 1ps/1ps
-
-// import hams_pkg::*;
-module tb_top();
-parameter CLK_PERIOD=10000;
-
-logic clk;
+`include "hams_pkg.vh"
+import hams_pkg::*;
+module tb_top(
+  input logic clk
+);
+localparam  NUM_ELEMENTS = 4;
 logic rst_n;
+integer rst_count = 0;
+integer run_count = 0;
+pair [NUM_ELEMENTS-1:0] unsorted;
+pair [NUM_ELEMENTS-1:0] sorted;
+logic valid, valid_o;
 
-initial begin
-  clk = 1'b0;
-  forever begin
-    #(CLK_PERIOD/2);
-    clk = !clk;
+always @(posedge clk) begin
+  rst_count++;
+  if((rst_count>=1) && (rst_count < 10))
+    rst_n = 1'b0;
+  else if(rst_count >= 10)
+    rst_n = 1'b1;
+end
+
+always @(posedge clk) begin
+  run_count++;
+  if(run_count>=20) begin
+    $write("*-* All Finished *-*\n");
+    $finish;
   end
 end
 
-initial begin
-  int rst_count = 0;
-  rst_n = 1'bx;
-  forever begin
-    #CLK_PERIOD;
-    rst_count++;
-    if((rst_count>=1) && (rst_count < 10))
-      rst_n = 1'b0;
-    else if(rst_count >= 10)
-      rst_n = 1'b1;
+always @(posedge clk , negedge rst_n) begin
+  if(!rst_n) begin
+    valid <= 1'b0;
+  end 
+  else begin
+    valid <= 1'b1;
   end
 end
 
-hams_Mele_sort
+always @(posedge clk , negedge rst_n) begin
+  if(!rst_n) begin
+    unsorted <= 'x;
+  end
+  else begin
+    for(int i =0; i< NUM_ELEMENTS; i++) begin
+      unsorted[i]<={$urandom,$urandom,$urandom,i};
+    end
+  end
+end
+
+hams_Mele_sort #
+(.NUM_ELEMENTS
+)
 dut
 (
-  .unsorted('x),
-  .valid('x),
-  .sorted(),
-  .valid_o(),
+  .unsorted(unsorted),
+  .valid(valid),
+  .sorted(sorted),
+  .valid_o(valid_o),
   .clk(clk),
   .rst_n(rst_n)
 );
+
+// Print some stuff as an example
+initial begin
+  if ($test$plusargs("trace") != 0) begin
+    $display("[%0t] Tracing to logs/tb_top_dump.vcd...\n", $time);
+    $dumpfile("logs/tb_top_dump.vcd");
+    $dumpvars();
+  end
+  $display("[%0t] Model running...\n", $time);
+end
+
 
 endmodule :tb_top
