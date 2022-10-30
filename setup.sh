@@ -1,2 +1,2 @@
-export STEM=`pwd`
+export WORKSPACE=`pwd`
 
