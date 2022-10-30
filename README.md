@@ -4,6 +4,7 @@
 This repo contains HDL implementation of harware accelerated merge sort algorithm in FPGA using high-performance vector stream processing. 
 
 Repository structure:
+...bash
 .
 ├── Makefile
 ├── README.md
@@ -25,7 +26,7 @@ Repository structure:
         ├── Makefile_obj
         ├── input.vc
         └── tb_top.cc
-        
+...
 
 To run simulation:
   1. make sim
