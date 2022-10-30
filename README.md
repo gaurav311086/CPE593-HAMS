@@ -19,7 +19,7 @@ Repository structure:
 │   └── systemverilog
 │       ├── hams_Mele_sort.sv
 │       └── hams_pkg.vh
-├── setup.sh                                (first source this file to setup environment)
+├── setup.sh                                (source this file to setup environment--this is the first step)
 └── tb                                      (Digital logic testbench files)
     ├── tb_top.sv
     └── tool                                (specific to tool; used only for verilator)
