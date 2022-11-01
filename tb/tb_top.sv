@@ -3,7 +3,6 @@ import hams_pkg::*;
 module tb_top(
   input logic clk
 );
-localparam  NUM_ELEMENTS = 4;
 logic rst_n;
 integer rst_count = 0;
 integer run_count = 0;
@@ -42,14 +41,13 @@ always @(posedge clk , negedge rst_n) begin
   end
   else begin
     for(int i =0; i< NUM_ELEMENTS; i++) begin
-      unsorted[i]<={$urandom,$urandom,$urandom,i};
+      // unsorted[i]<={$urandom,$urandom,$urandom,i};
+      unsorted[i]<={NUM_ELEMENTS-i};
     end
   end
 end
 
-hams_Mele_sort #
-(.NUM_ELEMENTS
-)
+hams_sortNelem
 dut
 (
   .unsorted(unsorted),
