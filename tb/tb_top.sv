@@ -3,24 +3,22 @@ import hams_pkg::*;
 module tb_top(
   input logic clk
 );
-logic rst_n;
+bit rst_n;
 integer rst_count = 0;
-integer run_count = 0;
 pair [NUM_ELEMENTS-1:0] unsorted;
 pair [NUM_ELEMENTS-1:0] sorted;
 logic valid, valid_o;
 
 always @(posedge clk) begin
   rst_count++;
-  if((rst_count>=1) && (rst_count < 10))
+  if((rst_count>=0) && (rst_count < 10))
     rst_n = 1'b0;
   else if(rst_count >= 10)
     rst_n = 1'b1;
 end
 
 always @(posedge clk) begin
-  run_count++;
-  if(run_count>=20) begin
+  if(rst_n && valid_o && (rst_count >= 100) ) begin
     $write("*-* All Finished *-*\n");
     $finish;
   end

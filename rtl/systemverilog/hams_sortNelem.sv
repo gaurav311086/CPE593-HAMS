@@ -21,30 +21,47 @@ always @(clk) begin
   assert(NUM_ELEMENTS == 2**($clog2(NUM_ELEMENTS))) else $fatal("NUM_ELEMENTS: %d must be power of 2!", NUM_ELEMENTS); 
 end
 
+assign intermediate_pairs[0] = unsorted;
+
+hams_pipevld
+#(
+  .PIPELINE_EN(1'b0)
+)u_hams_pipevld_0
+(
+  .clk,
+  .rst_n,
+  .vld_i(valid),
+  .vld_o(valid_i[0])
+);
+
 genvar k, j, i, ii;
 
-assign intermediate_pairs[0] = unsorted;
-always_comb
-  valid_i[0] = valid; 
 generate
   for(k=0;k < $clog2(NUM_ELEMENTS);k++) begin : upper_bitonic_layer
     for(j=k; j >=0 ; j--) begin : inner_bitonic_layer
       for(i=0; i<NUM_ELEMENTS/2; i++) begin : compare_box
         hams_sort2elem #(.PIPELINE_EN(PIPELINE_ENA_STAGES[((k*(k+1))/2)+j]))
-        hams_sort2elem_swap(  .clk,
-                              .unsorted ({intermediate_pairs[((k*(k+1))/2)+j][((i>>j)<<(j+1))+(i%(2**j))+2<<j],
-                                          intermediate_pairs[((k*(k+1))/2)+j][((i>>j)<<(j+1))+(i%(2**j))]}),
-                              .sorted   ({intermediate_pairs[((k*(k+1))/2)+j+1][((i>>j)<<(j+1))+(i%(2**j))+2<<j],
-                                          intermediate_pairs[((k*(k+1))/2)+j+1][((i>>j)<<(j+1))+(i%(2**j))]}),
+        u_hams_sort2elem(  .clk,
+                              .unsorted ({intermediate_pairs[((k*(k+1))/2)+j]   [((i>>j)<<(j+1))+(j>0)*(i%(2**j))+2**j],
+                                          intermediate_pairs[((k*(k+1))/2)+j]   [((i>>j)<<(j+1))+(j>0)*(i%(2**j))]}),
+                              .sorted   ({intermediate_pairs[((k*(k+1))/2)+j+1] [((i>>j)<<(j+1))+(j>0)*(i%(2**j))+2**j],
+                                          intermediate_pairs[((k*(k+1))/2)+j+1] [((i>>j)<<(j+1))+(j>0)*(i%(2**j))]}),
                               .direction(!((i>>k)%2 > 0))
                             );
       end
     end
   end
   for(ii=1; ii<=PIPELINES; ii++ ) begin : VALID_FF
-    always_ff@(posedge clk) begin
-      valid_i[i] <= valid_i[i-1];
-    end
+    hams_pipevld
+    #(
+      .PIPELINE_EN(1'b1)
+    )u_hams_pipevld
+    (
+      .clk,
+      .rst_n,
+      .vld_i(valid_i[ii-1]),
+      .vld_o(valid_i[ii])
+    );
   end
 endgenerate
 
