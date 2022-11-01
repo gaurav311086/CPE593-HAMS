@@ -5,27 +5,30 @@ This repo contains HDL implementation of harware accelerated merge sort algorith
 
 Repository structure:
 ```bash
-.
+./
 ├── Makefile                                (contains target to run lint, and run simulation)
 ├── README.md                               (this file::read me)
 ├── doc                                     (supporting documentation)
 │   ├── Hardware_accelerated_sorting.pdf    (presentation of the project)
 │   ├── ref                                 (reference paper, application notes)
-│   └── tools                               (tool related documentation)     
+│   └── tools                               (tool related documentation)
 │       └── verilator_doc.pdf               (verilator - documentation)
 ├── model                                   (C++ merge sort implementation, this will be used to check logic equivalence)
 │   └── hams.cc
 ├── rtl                                     (Digital implementation)
 │   └── systemverilog
-│       ├── hams_Mele_sort.sv
-│       └── hams_pkg.vh
+│       ├── hams_pkg.vh
+│       ├── hams_sort2elem.sv
+│       └── hams_sortNelem.sv
 ├── setup.sh                                (source this file to setup environment--this is the first step)
 └── tb                                      (Digital logic testbench files)
     ├── tb_top.sv
-    └── tool                                (specific to tool; used only for verilator)
+    └── tool                                (specific to tool, applicable to verilator only)
         ├── Makefile_obj
         ├── input.vc
         └── tb_top.cc
+
+8 directories, 13 files
 ```
 
 To run simulation:
