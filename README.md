@@ -17,6 +17,7 @@ Repository structure:
 │   └── hams.cc
 ├── rtl                                     (Digital implementation)
 │   └── systemverilog
+│       ├── hams_pipevld.sv
 │       ├── hams_pkg.vh
 │       ├── hams_sort2elem.sv
 │       └── hams_sortNelem.sv
@@ -28,7 +29,7 @@ Repository structure:
         ├── input.vc
         └── tb_top.cc
 
-8 directories, 13 files
+8 directories, 14 files
 ```
 
 To run simulation:
