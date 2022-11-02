@@ -20,7 +20,8 @@ Repository structure:
 │       ├── hams_pipevld.sv
 │       ├── hams_pkg.vh
 │       ├── hams_sort2elem.sv
-│       └── hams_sortNelem.sv
+│       ├── hams_sortNelem.sv
+│       └── hams_syncfifo.sv
 ├── setup.sh                                (source this file to setup environment--this is the first step)
 └── tb                                      (Digital logic testbench files)
     ├── tb_top.sv
@@ -29,7 +30,7 @@ Repository structure:
         ├── input.vc
         └── tb_top.cc
 
-8 directories, 14 files
+8 directories, 15 files
 ```
 
 To run simulation:
