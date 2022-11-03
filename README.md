@@ -5,7 +5,8 @@ This repository contains all the files for CPE-593 mini projects and the CPE-593
 
 Repository structure:
 ```bash
-README.md
+./
+├── README.md
 ├── final_project
 │   ├── Makefile
 │   ├── README.md
@@ -31,6 +32,11 @@ README.md
 │           ├── input.vc
 │           └── tb_top.cc
 └── mini_project_01
+    ├── README.md
+    ├── quicksort_lomuto
+    │   └── quicksort.cc
+    └── quicksort_original
+        └── quicksort.cc
 
-10 directories, 16 files
+12 directories, 19 files
 ```
