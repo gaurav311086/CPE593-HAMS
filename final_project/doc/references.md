@@ -7,8 +7,8 @@
 ## Merge Sort
 [Sorting Networks on FPGAs](http://dbis.cs.tu-dortmund.de/cms/en/publications/2012/sorting-networks/sorting-networks.pdf)
 
-
-
-
 ## Proposed Hardware Implementation
 [Final Project Presentation](https://github.com/gaurav311086/CPE593-HAMS/blob/23ca78420031f9301bb1f6ba5d25d0e6d03cc85a/final_project/doc/Hardware_accelerated_sorting.pdf)
+
+## Verilator-Open source System-Verilog simulator
+[Tool document](https://github.com/gaurav311086/CPE593-HAMS/blob/3b483f4bd13a7e4366937b20d93a53489652908b/final_project/doc/tools/verilator_doc.pdf)

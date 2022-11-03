@@ -35,5 +35,5 @@ Repository structure:
 
 To run simulation:
   1. make sim
-  2. using gtkwave open simulation dump (vcd file) located in ./out/build/logs/
+  2. use gtkwave to open simulation dump (vcd file) located in ./out/build/logs/
   
