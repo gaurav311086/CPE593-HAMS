@@ -1,7 +1,7 @@
 # CPE593
-#Group members: Gaurav Dubey & Michael Salek
+# Group members: Gaurav Dubey & Michael Salek
 
-This repo contains HDL implementation of harware accelerated merge sort algorithm in FPGA using high-performance vector stream processing. 
+This repository contains all the files for CPE-593 mini projects and the CPE-593 final project.
 
 Repository structure:
 ```bash
