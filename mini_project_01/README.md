@@ -1,5 +1,10 @@
 #Group Mini Project #1 Knuth Optimized Quicksort
 
+#Group members: Gaurav Dubey & Michael Salek
+
+#Quicksort (original): Michael Salek
+#Quicksort (Lomuto)  : Gaurav Dubey
+
 Working as a group implement quicksort both the original and Lomuto partitioning schemes (Lomuto is the one in the textbook that ends up with the pivot in the middle between the two partitions).
 
 The pivot should be selected randomly. In order to facilitate testing, seed the random number generator with 0 (Kruger's rule of simulations: never simulate with random numbers since any bug becomes non-repeatable).
