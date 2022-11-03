@@ -2,10 +2,10 @@
 
 ## Bitonic Sort
 
-https://en.wikipedia.org/wiki/Bitonic_sorter
+[Wiki](https://en.wikipedia.org/wiki/Bitonic_sorter)
 
 ## Merge Sort
-[Sorting Networks on FPGAs] (http://dbis.cs.tu-dortmund.de/cms/en/publications/2012/sorting-networks/sorting-networks.pdf)
+[Sorting Networks on FPGAs](http://dbis.cs.tu-dortmund.de/cms/en/publications/2012/sorting-networks/sorting-networks.pdf)
 
 
 
