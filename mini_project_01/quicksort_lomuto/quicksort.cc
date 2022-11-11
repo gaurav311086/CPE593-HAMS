@@ -1,12 +1,13 @@
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
+#include <vector>
 using namespace std;
 
 #define DEBUG 1
 
-uint32_t quicksort_lomuto_parition(int a[], uint32_t lo, uint32_t hi, bool descend= false);
-void quicksort(int a[], uint32_t lo, uint32_t hi, bool descend= false);
+uint32_t quicksort_lomuto_parition(vector <int> & a, uint32_t lo, uint32_t hi, bool descend= false);
+void quicksort(vector <int> & a, uint32_t lo, uint32_t hi, bool descend= false);
 void test_quicksort();
 
 int main() {
@@ -15,8 +16,8 @@ int main() {
 }
 
 
-void quicksort(int a[], uint32_t lo, uint32_t hi, bool descend) {
-  if (!a || !(lo < hi))
+void quicksort(vector <int> &  a, uint32_t lo, uint32_t hi, bool descend) {
+  if (!a.size() || !(lo < hi))
     return;
   #ifndef DEBUG
   srand(time(0));
@@ -31,18 +32,21 @@ void quicksort(int a[], uint32_t lo, uint32_t hi, bool descend) {
   if(!(pivot == hi))
     quicksort(a,pivot+1,hi,descend);
 }
-uint32_t quicksort_lomuto_parition(int a[], uint32_t lo, uint32_t hi, bool descend) {
+uint32_t quicksort_lomuto_parition(vector <int> & a, uint32_t lo, uint32_t hi, bool descend) {
   uint32_t pivot = hi;
-  int val_pivot = a[hi];  
+  int & val_pivot = a[hi];  
   uint32_t i = lo - 1;  
   for(uint32_t j = lo; j <= hi -1; j++){
-    if(a[j]<= val_pivot && !descend ){
+    int & a_j = a[j];
+    if(a_j<= val_pivot && !descend ){
       i=i+1;
-      swap(a[i],a[j]);
+      if(i!=j)
+        swap(a[i],a[j]);
     }
-    if(a[j]>= val_pivot && descend ){
+    if(a_j>= val_pivot && descend ){
       i=i+1;
-      swap(a[i],a[j]);
+      if(i!=j)
+        swap(a[i],a[j]);
     }
   }
   i=i+1;
@@ -50,15 +54,15 @@ uint32_t quicksort_lomuto_parition(int a[], uint32_t lo, uint32_t hi, bool desce
   return i;
 }
 void test_quicksort(){
-  // constexpr uint32_t n[11] = {10, 11, 12, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
-  constexpr uint32_t n[1] = {100000000};
+  constexpr uint32_t n[11] = {10, 11, 12, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
+  // constexpr uint32_t n[1] = {100000000};
   // constexpr uint32_t n[1] = {10, 11, 12, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
-  for (int run =0; run < 1; run++){
-    int * a = new int[n[run]];
+  for (uint32_t run =0; run < 11; run++){
+    vector<int> a(n[run]);
     if(false/*n[run] < 1000*/) {
       cout << "Logging for elements < 1000" << endl;
       cout << "unsort:{";
-      for(int i =0;i<n[run]-1;i++){
+      for(uint32_t i =0;i<n[run]-1;i++){
         a[i]=i;
         cout << a[i] << ",";
       }
@@ -72,21 +76,21 @@ void test_quicksort(){
     double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     if(false/*n[run] < 1000*/) {
       cout << "sort:{";
-      for(int i =0;i<n[run]-1;i++){
+      for(uint32_t i =0;i<n[run]-1;i++){
         cout<<a[i]<<",";
       }
       cout << a[n[run]-1] << "}" << endl;
     }
-    delete [] a;
+    // delete [] a;
     cout << "Sorted '" << n[run] <<"' elements!" << endl;
     cout << "CPU time used is: " <<cpu_time_used << " s." << endl;
   }
-  for (int run =0; run < 1; run++){
-    int * a = new int[n[run]];
+  for (uint32_t run =0; run < 11; run++){
+    vector<int> a(n[run]);
     if(false/*n[run] < 1000*/) {
       cout << "Logging for elements < 1000" << endl;
       cout << "unsort:{";
-      for(int i =n[run]-1;i>=1;i--){
+      for(uint32_t i =n[run]-1;i>=1;i--){
         a[i]=i;
         cout << a[i] << ",";
       }
@@ -100,12 +104,11 @@ void test_quicksort(){
     double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     if(false/*n[run] < 1000*/) {
       cout << "sort:{";
-      for(int i =0;i<n[run]-1;i++){
+      for(uint32_t i =0;i<n[run]-1;i++){
         cout<<a[i]<<",";
       }
       cout << a[n[run]-1] << "}" << endl;
     }
-    delete [] a;
     cout << "Sorted '" << n[run] <<"' elements!" << endl;
     cout << "CPU time used is: " <<cpu_time_used << " s." << endl;
   }
