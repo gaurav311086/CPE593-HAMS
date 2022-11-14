@@ -9,6 +9,12 @@ package hams_pkg;
     logic [31:0] info;
   } pair_lite;
   
+  
+  localparam NUM_ELEMENTS = 16;
+  localparam NUM_BITONIC_LAYER = $clog2(NUM_ELEMENTS)*($clog2(NUM_ELEMENTS)+1)/2;
+  localparam logic [NUM_BITONIC_LAYER -1 : 0] PIPELINE_ENA_STAGES = oneatdist(2);
+  localparam integer PIPELINES = countones(PIPELINE_ENA_STAGES);
+  
   function automatic logic [NUM_BITONIC_LAYER-1:0] oneatdist(input integer in);
     begin
       oneatdist='0;
@@ -26,9 +32,4 @@ package hams_pkg;
         countones+={31'b0,in[i]};
     end
   endfunction
-  
-  localparam NUM_ELEMENTS = 16;
-  localparam NUM_BITONIC_LAYER = $clog2(NUM_ELEMENTS)*($clog2(NUM_ELEMENTS)+1)/2;
-  localparam logic [NUM_BITONIC_LAYER -1 : 0] PIPELINE_ENA_STAGES = oneatdist(2);
-  localparam integer PIPELINES = countones(PIPELINE_ENA_STAGES);
 endpackage

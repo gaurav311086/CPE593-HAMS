@@ -1,5 +1,3 @@
-// `include "hams_pkg.vh"
-
 import hams_pkg::*;
 
 module hams_sortNelem

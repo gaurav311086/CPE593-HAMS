@@ -10,6 +10,10 @@ module hams_sort2elem
   output pair [2-1:0] sorted
 );
 
+`ifndef DELAY_CK_Q
+  `define DELAY_CK_Q #1
+`endif
+
 pair [2-1:0] sorted_ascending;
 pair [2-1:0] sorted_descending;
 pair [2-1:0] sorted_int;
@@ -24,7 +28,7 @@ always_comb
 generate
   if(PIPELINE_EN) begin : PIPELINE
     always_ff@(posedge clk) begin
-      sorted <= sorted_int;
+      sorted <= `DELAY_CK_Q sorted_int;
     end
   end
   else begin: NO_PIPELINE

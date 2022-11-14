@@ -10,13 +10,17 @@ module hams_pipevld
   output logic  vld_o
 );
 
+`ifndef DELAY_CK_Q
+  `define DELAY_CK_Q #1
+`endif
+
 generate
   if(PIPELINE_EN) begin : PIPELINE
     always_ff@(posedge clk, negedge rst_n) begin
       if(!rst_n)
         vld_o <= 1'b0;
       else
-        vld_o <= vld_i;
+        vld_o <= `DELAY_CK_Q vld_i;
     end
   end
   else begin: NO_PIPELINE

@@ -34,7 +34,7 @@ VERILATOR_FLAGS += --trace
 # Input files for Verilator
 #timing 
 VERILATOR_INPUT += -f ${WORKSPACE}/tb/tool/input.vc 
-VERILATOR_INPUT += -Wno-TIMESCALEMOD --no-timing
+VERILATOR_INPUT += -Wno-context -Wno-TIMESCALEMOD --no-timing 
 VERILATOR_INPUT += ${WORKSPACE}/tb/${TB_TOP}.sv ${WORKSPACE}/tb/tool/${TB_TOP}.cc
 
 
@@ -83,3 +83,15 @@ sim_debug : check-env
 	${WORKSPACE}/out/build/obj_dir/Vtb_top +trace; \
 	${WAVETOOL} logs/${TB_TOP}_dump.vcd
   
+
+vsim: check-env
+	mkdir -p ${WORKSPACE}/out/build; \
+	cd ${WORKSPACE}/out/build; \
+	vlib.exe work; \
+	export WINWORK=${WINWORK};\
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ -f ${WINWORK}/tb/tool/rtl.f; \
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ ${WINWORK}/tb/${TB_TOP}.sv;
+
+vsim_debug: vsim
+	cd ${WORKSPACE}/out/build; \
+  vsim.exe  -L work work.${TB_TOP} -t ps
