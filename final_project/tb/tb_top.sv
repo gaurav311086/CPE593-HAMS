@@ -84,6 +84,35 @@ hams_syncfifo
   .enteries()
 );
 
+hams_syncbram 
+#(
+  .DATA_DEPTH(1024),
+  .DATA_WIDTH(128),
+  .OUT_PIPELINE_ENA(1)
+)
+dut_work_mem_a
+(
+  .clk(clk),
+  .wr_en(1'b0),
+  .wr_data('0),
+  .addr('0),
+  .rd_data()
+);
+hams_syncbram 
+#(
+  .DATA_DEPTH(1024),
+  .DATA_WIDTH(128),
+  .OUT_PIPELINE_ENA(1)
+)
+dut_work_mem_b
+(
+  .clk(clk),
+  .wr_en(1'b0),
+  .wr_data('0),
+  .addr('0),
+  .rd_data()
+);
+
 // Print some stuff as an example
 initial begin
   if ($test$plusargs("trace") != 0) begin

@@ -2,9 +2,6 @@
 
 # Group members: Gaurav Dubey & Michael Salek
 
-# Quicksort (original) : Michael Salek
-# Quicksort (Lomuto)   : Gaurav Dubey
-# Quicksort (Knuth)    : Michael Salek
 
 Working as a group implement quicksort both the original and Lomuto partitioning schemes (Lomuto is the one in the textbook that ends up with the pivot in the middle between the two partitions).
 

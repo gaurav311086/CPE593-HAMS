@@ -87,7 +87,7 @@ int main(){
   for(uint32_t i=0;i<size; i++)
     ll.addEnd(unq_data[i]);
   
-  cout << "rec: 0x" << ptr[0] << ", key: " << rec[0].get_key() << ", rsvd: " << rec[0].get_rsvd() << endl;
+  cout << "rec: 0x" << ll[0] << ", key: " << rec[0].get_key() << ", rsvd: " << rec[0].get_rsvd() << endl;
   
   delete [] unq_data;
   
