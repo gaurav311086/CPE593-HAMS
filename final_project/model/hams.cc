@@ -1,13 +1,18 @@
 #include <iostream>
+#include <algorithm>
+#include <vector>
+#include <fstream>
 using namespace std;
 
+#undef DBLINKEDLIST
+
+#ifdef DBLINKEDLIST
 class LinkedList {
 private:
 	class Node {
 	public:
 		Node* next;
-		uint32_t key;
-    
+		uint32_t key;    
     Node(uint32_t v, Node* nxt) : key(v),nxt(nxt) {}
 	};
 
@@ -45,8 +50,7 @@ public:
     size++;
 	}
 	// implement to print out the list
-	friend ostream& operator <<(ostream& s, const DoubleLinkedList& list) {
-    // s << "{";
+*    // s << "{";
     Node * p;
     if(!list.head)
       return s;
@@ -60,6 +64,7 @@ public:
     return s;
 	}
 };
+#endif
 
 void exchange(uint32_t * a,uint32_t l, uint32_t r) {
   if(!a || (l==r))
@@ -78,16 +83,37 @@ void  fischeryates_shuffle(uint32_t * a, uint32_t lo, uint32_t hi){
 }
 
 int main(){
-  constexpr uint32_t size = 1000;
-  LinkedList ll;
+  constexpr uint32_t size = 1024;
+  // LinkedList ll;
   uint32_t * unq_data = new uint32_t[size];
   for(uint32_t i=0;i<size; i++)
     unq_data[i]=i+1;
   fischeryates_shuffle(unq_data,0,size-1);
-  for(uint32_t i=0;i<size; i++)
-    ll.addEnd(unq_data[i]);
   
-  cout << "rec: 0x" << ll[0] << ", key: " << rec[0].get_key() << ", rsvd: " << rec[0].get_rsvd() << endl;
+  vector<int> myvector (unq_data, unq_data+size);
+
+  // using default comparison (operator <):
+  sort (myvector.begin(), myvector.end());
+  
+  // open a file in write mode.
+  ofstream indata;
+  indata.open("input_data.txt");
+  // write inputted data into the file.
+  for(uint32_t i=0;i<size; i++)
+    indata << hex << unq_data[i] << endl;
+  
+  // close the opened file.
+  indata.close();
+  
+  // open a file in write mode.
+  ofstream outdata;
+  outdata.open("output_data.txt");
+  // write inputted data into the file.
+  for (vector<int>::iterator it=myvector.begin(); it!=myvector.end(); ++it)
+    outdata << hex << *it << endl;
+  
+  // close the opened file.
+  outdata.close();
   
   delete [] unq_data;
   

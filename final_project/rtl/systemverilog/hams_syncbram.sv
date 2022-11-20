@@ -2,7 +2,8 @@ module hams_syncbram
 #(
   parameter DATA_DEPTH = 16,
   parameter DATA_WIDTH = 8,
-  parameter OUT_PIPELINE_ENA = 1'b0
+  parameter OUT_PIPELINE_ENA = 1'b0,
+  parameter INIT_VAL_FILE = ""
 )
 (
   input   logic clk,
@@ -14,7 +15,11 @@ module hams_syncbram
 `ifndef DELAY_CK_Q
   `define DELAY_CK_Q #1
 `endif
+`ifdef SIMULATION
+  logic [DATA_WIDTH -1 : 0] bram_memory [0:DATA_DEPTH - 1] ;
+`else
   logic [DATA_DEPTH - 1: 0] [DATA_WIDTH -1 : 0] bram_memory;
+`endif
   
   genvar i;
   generate
@@ -31,7 +36,11 @@ module hams_syncbram
     end
     else begin : onotpiplined
       always_comb
-        rd_data =  `DELAY_CK_Q bram_memory[addr];
+        rd_data = bram_memory[addr];
     end
   endgenerate
+  
+`ifdef SIMULATION
+initial $readmemh(INIT_VAL_FILE,bram_memory);
+`endif
 endmodule : hams_syncbram

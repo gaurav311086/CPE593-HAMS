@@ -1,5 +1,7 @@
 `include "hams_pkg.vh"
 `define DELAY_CK_Q #1
+`define SIMULATION 1
+
 import hams_pkg::*;
 module tb_top(
   input logic clk
@@ -87,8 +89,9 @@ hams_syncfifo
 hams_syncbram 
 #(
   .DATA_DEPTH(1024),
-  .DATA_WIDTH(128),
-  .OUT_PIPELINE_ENA(1)
+  .DATA_WIDTH(32),
+  .OUT_PIPELINE_ENA(1),
+  .INIT_VAL_FILE("../../model/input_data.txt")
 )
 dut_work_mem_a
 (
@@ -98,7 +101,7 @@ dut_work_mem_a
   .addr('0),
   .rd_data()
 );
-hams_syncbram 
+/*hams_syncbram 
 #(
   .DATA_DEPTH(1024),
   .DATA_WIDTH(128),
@@ -111,7 +114,7 @@ dut_work_mem_b
   .wr_data('0),
   .addr('0),
   .rd_data()
-);
+);*/
 
 // Print some stuff as an example
 initial begin

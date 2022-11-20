@@ -89,9 +89,18 @@ vsim: check-env
 	cd ${WORKSPACE}/out/build; \
 	vlib.exe work; \
 	export WINWORK=${WINWORK};\
-	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ -f ${WINWORK}/tb/tool/rtl.f; \
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
 	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ ${WINWORK}/tb/${TB_TOP}.sv;
 
-vsim_debug: vsim
+vsim_debug: check-env
+	cd ${WORKSPACE}/model; \
+	g++ hams.cc; \
+	./a.out; \
+  mkdir -p ${WORKSPACE}/out/build; \
 	cd ${WORKSPACE}/out/build; \
-  vsim.exe  -L work work.${TB_TOP} -t ps
+	vlib.exe work; \
+	export WINWORK=${WINWORK};\
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ ${WINWORK}/tb/${TB_TOP}.sv; \
+	vlog.exe -work ${WINWORK}/out/build/work -refresh -force_refresh; \
+	vsim.exe  -L work work.${TB_TOP} -t ps
