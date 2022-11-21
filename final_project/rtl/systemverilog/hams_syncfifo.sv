@@ -73,7 +73,7 @@ module hams_syncfifo
   end
   
   always_comb begin
-    pop_data  = fifo_memory[fifo_rd_pointer];
+    pop_data  = fifo_memory[fifo_rd_pointer[$clog2(FIFO_DEPTH+1)-1:0]];
     empty     = (fifo_rd_pointer == fifo_wr_pointer);
     full      = /*(fifo_rd_pointer[$clog2(FIFO_DEPTH+1)] ^ fifo_wr_pointer_nxt[$clog2(FIFO_DEPTH+1)]) && 
                   (fifo_rd_pointer[$clog2(FIFO_DEPTH+1)-1:0] == fifo_wr_pointer_nxt[$clog2(FIFO_DEPTH+1)-1:0]);*/

@@ -3,6 +3,7 @@ import hams_pkg::*;
 module hams_sortNelem
 (
   input   pair [NUM_ELEMENTS-1:0] unsorted,
+  input   logic unsigned_cmp,
   input   logic valid,
   output  pair [NUM_ELEMENTS-1:0] sorted,
   output  logic valid_o,
@@ -35,26 +36,28 @@ hams_pipevld
 genvar k, j, i, ii;
 
 generate
-  for(k=0;k < $clog2(NUM_ELEMENTS);k++) begin : upper_bitonic_layer
-    for(j=k; j >=0 ; j--) begin : inner_bitonic_layer
-      for(i=0; i<NUM_ELEMENTS/2; i++) begin : compare_box
-        if(j == 0) begin : lst_layer
+  for(k=0;k < $clog2(NUM_ELEMENTS);k++) begin : k_layer
+    for(j=k; j >=0 ; j--) begin : j_layer
+      for(i=0; i<NUM_ELEMENTS/2; i++) begin : i_layer
+        if(j == 0) begin : jeq0_last
           hams_sort2elem #(.PIPELINE_EN(PIPELINE_ENA_STAGES[((k*(k+1))/2)+j]))
           u_hams_sort2elem(  .clk,
-                                .unsorted ({intermediate_pairs[((k*(k+1))/2)]   [(i<<1)+1],
-                                            intermediate_pairs[((k*(k+1))/2)]   [(i<<1)]}),
-                                .sorted   ({intermediate_pairs[((k*(k+1))/2)+1] [(i<<1)+1],
-                                            intermediate_pairs[((k*(k+1))/2)+1] [(i<<1)]}),
+                             .unsigned_cmp,
+                                .unsorted ({intermediate_pairs[((k*(k+1))/2)+k]   [(i<<1)+1],
+                                            intermediate_pairs[((k*(k+1))/2)+k]   [(i<<1)]}),
+                                .sorted   ({intermediate_pairs[((k*(k+1))/2)+k+1] [(i<<1)+1],
+                                            intermediate_pairs[((k*(k+1))/2)+k+1] [(i<<1)]}),
                                 .direction(!((i>>k)%2 > 0))
                               );
         end
-        else begin : int_layer
+        else begin : jneq0
           hams_sort2elem #(.PIPELINE_EN(PIPELINE_ENA_STAGES[((k*(k+1))/2)+j]))
           u_hams_sort2elem(  .clk,
-                                .unsorted ({intermediate_pairs[((k*(k+1))/2)+j]   [((i>>j)<<(j+1))+(i%(2**j))+2**j],
-                                            intermediate_pairs[((k*(k+1))/2)+j]   [((i>>j)<<(j+1))+(i%(2**j))]}),
-                                .sorted   ({intermediate_pairs[((k*(k+1))/2)+j+1] [((i>>j)<<(j+1))+(i%(2**j))+2**j],
-                                            intermediate_pairs[((k*(k+1))/2)+j+1] [((i>>j)<<(j+1))+(i%(2**j))]}),
+                             .unsigned_cmp,
+                                .unsorted ({intermediate_pairs[((k*(k+1))/2)+k-j]   [((i>>j)<<(j+1))+(i%(2**j))+2**j],
+                                            intermediate_pairs[((k*(k+1))/2)+k-j]   [((i>>j)<<(j+1))+(i%(2**j))]}),
+                                .sorted   ({intermediate_pairs[((k*(k+1))/2)+k-j+1] [((i>>j)<<(j+1))+(i%(2**j))+2**j],
+                                            intermediate_pairs[((k*(k+1))/2)+k-j+1] [((i>>j)<<(j+1))+(i%(2**j))]}),
                                 .direction(!((i>>k)%2 > 0))
                               );
         end

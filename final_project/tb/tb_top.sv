@@ -6,11 +6,23 @@ import hams_pkg::*;
 module tb_top(
   input logic clk
 );
+localparam NUM_MEM = NUM_ELEMENTS;
+localparam MEM_DEPTH = 1024;
+localparam ADDR_WIDTH = $clog2(MEM_DEPTH);
+localparam DATA_WIDTH = 32;
+
 bit rst_n;
+logic bitonic_sort_done;
 integer rst_count = 0;
 pair [NUM_ELEMENTS-1:0] unsorted;
 pair [NUM_ELEMENTS-1:0] sorted;
 logic valid, valid_o;
+logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr;
+logic [NUM_MEM-1:0] mem_wr;
+logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_rdata;
+logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_wdata;
+logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  vp_data_sorted;
+logic sorted_data_rdyn;
 
 always @(posedge clk) begin
   rst_count = `DELAY_CK_Q (rst_count + 1);
@@ -21,46 +33,36 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-  if((rst_n===1) && valid_o && (rst_count >= 100) ) begin
+  if((rst_n===1) && bitonic_sort_done ) begin
     $write("*-* All Finished *-*\n");
     $finish;
   end
 end
 
-always @(posedge clk , negedge rst_n) begin
-  if(!rst_n) begin
-    valid <= 1'b0;
-  end 
-  else begin
-    valid <= `DELAY_CK_Q 1'b1;
-  end
-end
+hams_ctrl 
+dut_ctrl
+(
+  .clk(clk),
+  .rst_n(rst_n),
+  .start(1'b1),
+  .pause(1'b0),
+  .sort_chunks((MEM_DEPTH/NUM_ELEMENTS)),
+  .vp_data_sorted(vp_data_sorted),
+  .vp_data_sorted_valid(!sorted_data_rdyn),
+  .mem_rdata(mem_rdata),
+  .mem_wr(mem_wr),
+  .mem_addr(mem_addr),
+  .mem_wdata(mem_wdata),
+  .vp_data_to_sort(unsorted),
+  .vp_data_to_sort_valid(valid),
+  .bitonic_sort_done
+);
 
-logic pop;
-always @(posedge clk , negedge rst_n) begin
-  if(!rst_n) begin
-    pop <= 1'b0;
-  end 
-  else begin
-    pop <= `DELAY_CK_Q (valid ^ pop);
-  end
-end
-
-always @(posedge clk , negedge rst_n) begin
-  if(!rst_n) begin
-    unsorted <= 'x;
-  end
-  else begin
-    for(int i =0; i< NUM_ELEMENTS; i++) begin
-      // unsorted[i]<={$urandom,$urandom,$urandom,i};
-      unsorted[i]<=`DELAY_CK_Q {NUM_ELEMENTS-i};
-    end
-  end
-end
 
 hams_sortNelem
-dut
+dut_vp
 (
+  .unsigned_cmp(1'b0),
   .unsorted(unsorted),
   .valid(valid),
   .sorted(sorted),
@@ -71,50 +73,81 @@ dut
 
 hams_syncfifo 
 #(
-  .FIFO_DEPTH(8),
-  .FIFO_WIDTH(8)
+  .FIFO_DEPTH(NUM_MEM*2),
+  .FIFO_WIDTH(DATA_WIDTH*NUM_ELEMENTS)
 ) dutx
 (
   .clk,
   .rst_n,
-  .push(valid && (rst_count < 50)),
-  .pop(pop),
-  .push_data((rst_count[7:0]-8'd10)),
-  .pop_data(),
-  .empty(),
+  .push(valid_o),
+  .pop(mem_wr[0]),
+  .push_data(sorted),
+  .pop_data(vp_data_sorted),
+  .empty(sorted_data_rdyn),
   .full(),
   .enteries()
 );
 
 hams_syncbram 
 #(
-  .DATA_DEPTH(1024),
-  .DATA_WIDTH(32),
+  .DATA_DEPTH(MEM_DEPTH),
+  .DATA_WIDTH(DATA_WIDTH),
   .OUT_PIPELINE_ENA(1),
   .INIT_VAL_FILE("../../model/input_data.txt")
 )
 dut_work_mem_a
 (
   .clk(clk),
-  .wr_en(1'b0),
-  .wr_data('0),
-  .addr('0),
-  .rd_data()
+  .wr_en(mem_wr[0]),
+  .wr_data(mem_wdata[0]),
+  .addr(mem_addr[0]),
+  .rd_data(mem_rdata[0])
 );
-/*hams_syncbram 
+hams_syncbram 
 #(
-  .DATA_DEPTH(1024),
-  .DATA_WIDTH(128),
-  .OUT_PIPELINE_ENA(1)
+  .DATA_DEPTH(MEM_DEPTH),
+  .DATA_WIDTH(DATA_WIDTH),
+  .OUT_PIPELINE_ENA(1),
+  .INIT_VAL_FILE("../../model/input_data.txt")
 )
 dut_work_mem_b
 (
   .clk(clk),
-  .wr_en(1'b0),
-  .wr_data('0),
-  .addr('0),
-  .rd_data()
-);*/
+  .wr_en(mem_wr[1]),
+  .wr_data(mem_wdata[1]),
+  .addr(mem_addr[1]),
+  .rd_data(mem_rdata[1])
+);
+hams_syncbram 
+#(
+  .DATA_DEPTH(MEM_DEPTH),
+  .DATA_WIDTH(DATA_WIDTH),
+  .OUT_PIPELINE_ENA(1),
+  .INIT_VAL_FILE("../../model/input_data.txt")
+)
+dut_work_mem_c
+(
+  .clk(clk),
+  .wr_en(mem_wr[2]),
+  .wr_data(mem_wdata[2]),
+  .addr(mem_addr[2]),
+  .rd_data(mem_rdata[2])
+);
+hams_syncbram 
+#(
+  .DATA_DEPTH(MEM_DEPTH),
+  .DATA_WIDTH(DATA_WIDTH),
+  .OUT_PIPELINE_ENA(1),
+  .INIT_VAL_FILE("../../model/input_data.txt")
+)
+dut_work_mem_d
+(
+  .clk(clk),
+  .wr_en(mem_wr[3]),
+  .wr_data(mem_wdata[3]),
+  .addr(mem_addr[3]),
+  .rd_data(mem_rdata[3])
+);
 
 // Print some stuff as an example
 initial begin
