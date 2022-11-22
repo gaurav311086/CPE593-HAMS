@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 #undef DBLINKEDLIST
@@ -92,6 +93,22 @@ int main(){
   
   vector<int> myvector (unq_data, unq_data+size);
 
+  for(int j=0;j<size;j=j+4){
+    sort (myvector.begin()+(j), myvector.begin()+(j+4));
+  }
+  
+  // open a file in write mode.
+  ofstream outdata1;
+  outdata1.open("output_data_ph1.txt");
+  // write inputted data into the file.
+  for (vector<int>::iterator it=myvector.begin(); it!=myvector.end(); ++it)
+    outdata1 << hex << setw(8) << setfill('0') << *it << endl;
+  
+  
+  // close the opened file.
+  outdata1.close();
+  
+
   // using default comparison (operator <):
   sort (myvector.begin(), myvector.end());
   
@@ -106,14 +123,14 @@ int main(){
   indata.close();
   
   // open a file in write mode.
-  ofstream outdata;
-  outdata.open("output_data.txt");
+  ofstream outdata2;
+  outdata2.open("output_data.txt");
   // write inputted data into the file.
   for (vector<int>::iterator it=myvector.begin(); it!=myvector.end(); ++it)
-    outdata << hex << *it << endl;
+    outdata2 << hex << *it << endl;
   
   // close the opened file.
-  outdata.close();
+  outdata2.close();
   
   delete [] unq_data;
   

@@ -33,7 +33,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-  if((rst_n===1) && bitonic_sort_done ) begin
+  if((rst_n===1) && bitonic_sort_done && sorted_data_rdyn) begin
     $write("*-* All Finished *-*\n");
     $finish;
   end
@@ -87,6 +87,32 @@ hams_syncfifo
   .full(),
   .enteries()
 );
+
+logic print_done;
+initial begin
+  int fd;
+  bit ph1_data_dump;
+  ph1_data_dump = 1'b0;
+  print_done = 1'b0;
+  
+  forever begin
+    @(posedge clk);
+    if(!ph1_data_dump) begin
+      fd = $fopen("output_data_ph1.txt","w");
+      ph1_data_dump = 1'b1;
+    end
+    if(mem_wr[0]) begin
+      $fdisplayh(fd,vp_data_sorted[0]);
+      $fdisplayh(fd,vp_data_sorted[1]);
+      $fdisplayh(fd,vp_data_sorted[2]);
+      $fdisplayh(fd,vp_data_sorted[3]);
+    end
+    if(bitonic_sort_done && ph1_data_dump) begin
+      $fclose(fd);
+      print_done = 1'b1;
+    end
+  end
+end
 
 hams_syncbram 
 #(

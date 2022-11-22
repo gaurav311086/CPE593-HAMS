@@ -60,9 +60,9 @@ module hams_syncfifo
   end  
       
   always_comb begin
-    fifo_wr_pointer_nxt = (fifo_wr_pointer[$clog2(FIFO_DEPTH+1)-1:0] == FIFO_DEPTH)? 
+    fifo_wr_pointer_nxt = (fifo_wr_pointer[$clog2(FIFO_DEPTH+1)-1:0] == FIFO_DEPTH-1)? 
                             {!fifo_wr_pointer[$clog2(FIFO_DEPTH+1)],{$clog2(FIFO_DEPTH+1){1'b0}}} : fifo_wr_pointer + 1;
-    fifo_rd_pointer_nxt = (fifo_rd_pointer[$clog2(FIFO_DEPTH+1)-1:0] == FIFO_DEPTH)? 
+    fifo_rd_pointer_nxt = (fifo_rd_pointer[$clog2(FIFO_DEPTH+1)-1:0] == FIFO_DEPTH-1)? 
                             {!fifo_rd_pointer[$clog2(FIFO_DEPTH+1)],{$clog2(FIFO_DEPTH+1){1'b0}}} : fifo_rd_pointer + 1;
     
     case ({(!full && push), (!empty && pop)}) inside
