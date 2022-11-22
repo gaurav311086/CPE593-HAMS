@@ -53,6 +53,7 @@ check-env:
 
 clean: check-env
 	rm -fR ${WORKSPACE}/out
+	rm -f ${WORKSPACE}/model/a.out ${WORKSPACE}/model/*.txt 
 	@echo "Clean up done."
 
 lint: 
