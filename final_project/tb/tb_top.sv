@@ -12,9 +12,10 @@ localparam ADDR_WIDTH = $clog2(MEM_DEPTH);
 localparam DATA_WIDTH = 32;
 
 bit rst_n;
-logic bitonic_sort_done;
+logic bitonic_sort_done, data_in_vld,rdy;
+logic bitonic_sort_done_d, bitonic_sort_done_dd, bitonic_sort_done_ddd;
 integer rst_count = 0;
-pair [NUM_ELEMENTS-1:0] unsorted;
+pair unsorted;
 pair [NUM_ELEMENTS-1:0] sorted;
 logic valid, valid_o;
 logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr;
@@ -23,6 +24,7 @@ logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_rdata;
 logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_wdata;
 logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  vp_data_sorted;
 logic sorted_data_rdyn;
+logic start;
 
 always @(posedge clk) begin
   rst_count = `DELAY_CK_Q (rst_count + 1);
@@ -32,68 +34,110 @@ always @(posedge clk) begin
     rst_n = `DELAY_CK_Q 1'b1;
 end
 
-always @(posedge clk) begin
-  if((rst_n===1) && bitonic_sort_done && sorted_data_rdyn) begin
-    $write("*-* All Finished *-*\n");
-    $finish;
+// always @(posedge clk) begin
+  // if((rst_n===1) && bitonic_sort_done && sorted_data_rdyn) begin
+    // $write("*-* All Finished *-*\n");
+    // $finish;
+  // end
+// end
+integer data_to_mem;
+
+initial begin
+  bit file_dump_complete;
+  int fd;
+  fd = $fopen("../../model/input_data.txt","r");
+  file_dump_complete = 1'b0;
+  data_in_vld = 1'b0;
+  unsorted = 'x;
+  start = 1'b0;
+  @(posedge rst_n);
+  forever begin
+    @(posedge clk);
+    if(!file_dump_complete && rdy) begin
+      if(fd) begin
+        while($fscanf(fd,"%x",data_to_mem) == 1) begin
+          data_in_vld = 1'b1;
+          unsorted.info = data_to_mem;
+          @(posedge clk);
+        end
+        data_in_vld = 1'b0;
+        unsorted = 'x;
+        start = 1'b1;
+        @(posedge clk);
+        start = 1'b0;
+        file_dump_complete = 1'b1;
+        $fclose(fd);
+        fd=-1;
+      end
+    end
   end
 end
 
-hams_ctrl 
-dut_ctrl
+hams_bitonic_sort_top
+dut
 (
-  .clk(clk),
-  .rst_n(rst_n),
-  .start(1'b1),
+  .start(start),
   .pause(1'b0),
-  .sort_chunks((MEM_DEPTH/NUM_ELEMENTS)),
-  .vp_data_sorted(vp_data_sorted),
-  .vp_data_sorted_valid(!sorted_data_rdyn),
-  .mem_rdata(mem_rdata),
-  .mem_wr(mem_wr),
-  .mem_addr(mem_addr),
-  .mem_wdata(mem_wdata),
-  .vp_data_to_sort(unsorted),
-  .vp_data_to_sort_valid(valid),
-  .bitonic_sort_done
+  .rdy(rdy),
+  .data_in(unsorted),
+  .data_in_vld(data_in_vld),
+  .data_o(sorted),
+  .data_o_vld(valid_o),
+  .bitonic_sort_complete(bitonic_sort_done),
+  .clk,
+  .rst_n
 );
 
 
-hams_sortNelem
-dut_vp
-(
-  .unsigned_cmp(1'b0),
-  .unsorted(unsorted),
-  .valid(valid),
-  .sorted(sorted),
-  .valid_o(valid_o),
-  .clk(clk),
-  .rst_n(rst_n)
-);
+logic vp_data_sorted_last;
 
 hams_syncfifo 
 #(
-  .FIFO_DEPTH(NUM_MEM*2),
-  .FIFO_WIDTH(DATA_WIDTH*NUM_ELEMENTS)
+  .FIFO_DEPTH(NUM_MEM),
+  .FIFO_WIDTH(DATA_WIDTH*NUM_ELEMENTS + 1)
 ) dutx
 (
   .clk,
   .rst_n,
   .push(valid_o),
-  .pop(mem_wr[0]),
-  .push_data(sorted),
-  .pop_data(vp_data_sorted),
+  .pop(!sorted_data_rdyn),
+  .push_data({bitonic_sort_done_dd,sorted}),
+  .pop_data({vp_data_sorted_last,vp_data_sorted}),
   .empty(sorted_data_rdyn),
   .full(),
   .enteries()
 );
 
-logic print_done;
+
+hams_merge_sort_top 
+#(
+  .NUM_MEM(NUM_MEM),
+  .DATA_WIDTH(DATA_WIDTH),
+  .ADDR_WIDTH(ADDR_WIDTH)
+) duty
+(
+  .clk(clk),
+  .rst_n(rst_n),
+  .start(start),
+  .pause(1'b0),
+  .bitonic_sort_data(vp_data_sorted),
+  .bitonic_sort_data_vld(!sorted_data_rdyn),
+  .bitonic_sort_done(vp_data_sorted_last),
+  .done()
+);
+
+always_ff @(posedge clk)
+  bitonic_sort_done_d <=  bitonic_sort_done;
+always_ff @(posedge clk)
+  bitonic_sort_done_dd <=  bitonic_sort_done_d;
+always_ff @(posedge clk)
+  bitonic_sort_done_ddd <=  bitonic_sort_done_dd;
+
+
 initial begin
   int fd;
   bit ph1_data_dump;
   ph1_data_dump = 1'b0;
-  print_done = 1'b0;
   
   forever begin
     @(posedge clk);
@@ -101,79 +145,18 @@ initial begin
       fd = $fopen("output_data_ph1.txt","w");
       ph1_data_dump = 1'b1;
     end
-    if(mem_wr[0]) begin
+    if(!sorted_data_rdyn) begin
       $fdisplayh(fd,vp_data_sorted[0]);
       $fdisplayh(fd,vp_data_sorted[1]);
       $fdisplayh(fd,vp_data_sorted[2]);
       $fdisplayh(fd,vp_data_sorted[3]);
     end
-    if(bitonic_sort_done && ph1_data_dump) begin
-      $fclose(fd);
-      print_done = 1'b1;
-    end
+    // if(bitonic_sort_done && ph1_data_dump) begin
+      // $fclose(fd);
+      // print_done = 1'b1;
+    // end
   end
 end
-
-hams_syncbram 
-#(
-  .DATA_DEPTH(MEM_DEPTH),
-  .DATA_WIDTH(DATA_WIDTH),
-  .OUT_PIPELINE_ENA(1),
-  .INIT_VAL_FILE("../../model/input_data.txt")
-)
-dut_work_mem_a
-(
-  .clk(clk),
-  .wr_en(mem_wr[0]),
-  .wr_data(mem_wdata[0]),
-  .addr(mem_addr[0]),
-  .rd_data(mem_rdata[0])
-);
-hams_syncbram 
-#(
-  .DATA_DEPTH(MEM_DEPTH),
-  .DATA_WIDTH(DATA_WIDTH),
-  .OUT_PIPELINE_ENA(1),
-  .INIT_VAL_FILE("../../model/input_data.txt")
-)
-dut_work_mem_b
-(
-  .clk(clk),
-  .wr_en(mem_wr[1]),
-  .wr_data(mem_wdata[1]),
-  .addr(mem_addr[1]),
-  .rd_data(mem_rdata[1])
-);
-hams_syncbram 
-#(
-  .DATA_DEPTH(MEM_DEPTH),
-  .DATA_WIDTH(DATA_WIDTH),
-  .OUT_PIPELINE_ENA(1),
-  .INIT_VAL_FILE("../../model/input_data.txt")
-)
-dut_work_mem_c
-(
-  .clk(clk),
-  .wr_en(mem_wr[2]),
-  .wr_data(mem_wdata[2]),
-  .addr(mem_addr[2]),
-  .rd_data(mem_rdata[2])
-);
-hams_syncbram 
-#(
-  .DATA_DEPTH(MEM_DEPTH),
-  .DATA_WIDTH(DATA_WIDTH),
-  .OUT_PIPELINE_ENA(1),
-  .INIT_VAL_FILE("../../model/input_data.txt")
-)
-dut_work_mem_d
-(
-  .clk(clk),
-  .wr_en(mem_wr[3]),
-  .wr_data(mem_wdata[3]),
-  .addr(mem_addr[3]),
-  .rd_data(mem_rdata[3])
-);
 
 // Print some stuff as an example
 initial begin

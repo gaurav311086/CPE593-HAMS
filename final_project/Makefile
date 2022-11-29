@@ -104,4 +104,4 @@ vsim_debug: check-env
 	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
 	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ ${WINWORK}/tb/${TB_TOP}.sv; \
 	vlog.exe -work ${WINWORK}/out/build/work -refresh -force_refresh; \
-	vsim.exe  -L work work.${TB_TOP} -t ps  -do "add log -r sim:/${TB_TOP}/*;force -freeze sim:/tb_top/clk 1 0, 0 {5000 ps} -r 10000;run 10 us;"
+	vsim.exe  -L work work.${TB_TOP} -t ps  -do "add log -r sim:/tb_top/*;force -freeze sim:/tb_top/clk 1 0, 0 {5000 ps} -r 10000;run 100 us;"

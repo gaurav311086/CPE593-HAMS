@@ -4,4 +4,9 @@
 ../../rtl/systemverilog/hams_syncfifo.sv
 ../../rtl/systemverilog/hams_sort2elem.sv
 ../../rtl/systemverilog/hams_sortNelem.sv
-../../rtl/systemverilog/hams_ctrl.sv
+../../rtl/systemverilog/hams_bitonic_sort_ctrl.sv
+../../rtl/systemverilog/hams_bitonic_sort_top.sv
+../../rtl/systemverilog/hams_4to1_merge_sort.sv
+../../rtl/systemverilog/hams_merge_sort_colq_ctrl.sv
+../../rtl/systemverilog/hams_merge_sort_ctrl.sv
+../../rtl/systemverilog/hams_merge_sort_top.sv

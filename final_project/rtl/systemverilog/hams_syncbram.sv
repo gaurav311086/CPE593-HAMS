@@ -3,6 +3,7 @@ module hams_syncbram
   parameter DATA_DEPTH = 16,
   parameter DATA_WIDTH = 8,
   parameter OUT_PIPELINE_ENA = 1'b1,
+  parameter INIT_FOR_SIM = 1'b0,
   parameter INIT_VAL_FILE = ""
 )
 (
@@ -41,6 +42,9 @@ module hams_syncbram
   endgenerate
   
 `ifdef SIMULATION
-initial $readmemh(INIT_VAL_FILE,bram_memory);
+initial begin
+  if(INIT_FOR_SIM)
+    $readmemh(INIT_VAL_FILE,bram_memory);
+end
 `endif
 endmodule : hams_syncbram
