@@ -20,6 +20,10 @@ logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr;
 logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_wdata;
 logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_rdata;
 logic fifo_full, fifo_empty, fifo_pop;
+pair                                  merge_sort_data;
+pair  [NUM_MEM-1:0]                   unsort_data_out;
+logic [NUM_MEM-1:0]                   unsort_data_out_vld;
+
 
 hams_merge_sort_ctrl  #(
 .NUM_MEM(NUM_MEM),
@@ -38,6 +42,9 @@ merge_sort_ctrl
   .bitonic_sort_data_vld(bitonic_sort_data_vld),
   .bitonic_sort_data(bitonic_sort_data),
   .bitonic_sort_done(bitonic_sort_done),
+  .merge_sort_data(merge_sort_data),
+  .unsort_data_out(unsort_data_out),
+  .unsort_data_out_vld(unsort_data_out_vld),
   .mem_rdata(mem_rdata),
   .mem_wr(mem_wr),
   .mem_addr(mem_addr),
@@ -51,11 +58,11 @@ merge_4col_sorter
   .clk(clk),
   .rst_n(rst_n),
   .col_ena('1),
-  .colDataVld('0),
-  .colData('0),
+  .colDataVld(unsort_data_out_vld),
+  .colData(unsort_data_out),
   .fifo_empty(fifo_empty),
   .fifo_full(fifo_full),
-  .sort_data_o(),
+  .sort_data_o(merge_sort_data),
   .fifo_pop(fifo_pop)
 );
 

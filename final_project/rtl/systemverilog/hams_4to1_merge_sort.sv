@@ -30,14 +30,14 @@ pair colO_data,colO_dataO;
 logic colAA_pop,colBB_pop;
 logic colO_empty,colO_full;
 
-assign colA_pop = (!colA_empty && col_ena[0] && !colAA_full && (colData[0].info < colData[1].info));
-assign colB_pop = (!colB_empty && col_ena[1] && !colAA_full && (colData[1].info < colData[0].info));
-assign colC_pop = (!colA_empty && col_ena[2] && !colBB_full && (colData[2].info < colData[3].info));
-assign colD_pop = (!colB_empty && col_ena[3] && !colBB_full && (colData[3].info < colData[2].info));
+assign colA_pop = (!colA_empty && col_ena[0] && !colAA_full && ((colB_empty)||(colA_dataO.info < colB_dataO.info)));
+assign colB_pop = (!colB_empty && col_ena[1] && !colAA_full && ((colA_empty)||(colB_dataO.info < colA_dataO.info)));
+assign colC_pop = (!colC_empty && col_ena[2] && !colBB_full && ((colD_empty)||(colC_dataO.info < colD_dataO.info)));
+assign colD_pop = (!colD_empty && col_ena[3] && !colBB_full && ((colC_empty)||(colD_dataO.info < colC_dataO.info)));
 assign colAA_data = colA_pop ? colA_dataO : colB_dataO;
 assign colBB_data = colC_pop ? colC_dataO : colD_dataO;
-assign colAA_pop = (!colAA_empty && !colO_full && (colAA_dataO.info < colBB_dataO.info));
-assign colBB_pop = (!colBB_empty && !colO_full && (colAA_dataO.info < colBB_dataO.info));
+assign colAA_pop = (!colAA_empty && !colO_full && ((colBB_empty)||(colAA_dataO.info < colBB_dataO.info)));
+assign colBB_pop = (!colBB_empty && !colO_full && ((colAA_empty)||(colAA_dataO.info > colBB_dataO.info)));
 assign colO_data = colAA_pop ? colAA_dataO : colBB_dataO;
 assign fifo_full = (colA_full || colB_full || colC_full || colD_full);
 hams_syncfifo 

@@ -17,6 +17,7 @@ module hams_merge_sort_colq_ctrl
   input   logic               [ADDR_WIDTH:0]    stride_limit,
   output  logic                                 done,
   output  logic                                 fifo_pop,
+  output  logic                                 fifo_push,
   output  logic [NUM_MEM-1:0]                   mem_wr,
   output  logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr
 );
@@ -42,6 +43,35 @@ always_ff @(posedge clk) begin
         loop_cnt_i  <=  `DELAY_CK_Q '0;
       else
         loop_cnt_i  <= `DELAY_CK_Q loop_cnt_i + 1;
+    end
+  end
+end
+logic fifo_push_i;
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n) begin
+    fifo_push_i <= `DELAY_CK_Q '0;
+  end
+  else begin
+    if(!pause) begin
+      if(start) begin
+        fifo_push_i   <= `DELAY_CK_Q '1;
+      end
+      else if (!fifo_full && !read_done && !write_now) begin
+        if(loop_cnt_i==loop_limit-1)
+          fifo_push_i <= `DELAY_CK_Q '0;
+      end
+      else if(write_now && !fifo_empty && (mem_addr_o[0]==stride_wr-1))
+        fifo_push_i <= `DELAY_CK_Q '1;
+    end
+  end
+end
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n) begin
+    fifo_push <= `DELAY_CK_Q '0;
+  end
+  else begin
+    if(!pause) begin
+      fifo_push <= `DELAY_CK_Q fifo_push_i;
     end
   end
 end

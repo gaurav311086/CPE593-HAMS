@@ -32,9 +32,9 @@ localparam logic [1:0] SORT_4ELEM4CYCL = 2'd1;
 localparam logic [1:0] MERGE_SORT_ELEM = 2'd3;
 
 logic [1:0] fsm_state, fsm_state_nxt;
-logic vecprocdone;
-logic [ADDR_WIDTH-$clog2(NUM_MEM)-1:0] vecproc_rd1_addr, vecproc_rd1_addr_nxt;
-logic [ADDR_WIDTH-1:0] vecproc_wr1_addr, vecproc_wr1_addr_nxt;
+logic done;
+logic [ADDR_WIDTH-$clog2(NUM_MEM)-1:0] rd1_addr, rd1_addr_nxt;
+logic [ADDR_WIDTH-1:0] wr1_addr, wr1_addr_nxt;
 
 always_comb begin
   case (fsm_state) inside
@@ -45,7 +45,7 @@ always_comb begin
         fsm_state_nxt =  IDLE;
     end
     SORT_4ELEM4CYCL : begin
-      if(vecprocdone)
+      if(done)
         fsm_state_nxt =  MERGE_SORT_ELEM;
       else
         fsm_state_nxt =  SORT_4ELEM4CYCL;
@@ -65,35 +65,35 @@ always_ff @(posedge clk or negedge rst_n) begin
     fsm_state <=  `DELAY_CK_Q fsm_state_nxt;
 end
 
-assign vecprocdone = (sort_elements[2+:$bits(vecproc_rd1_addr)] == vecproc_rd1_addr_nxt) && (fsm_state == SORT_4ELEM4CYCL);
+assign done = (sort_elements[2+:$bits(rd1_addr)] == rd1_addr_nxt) && (fsm_state == SORT_4ELEM4CYCL);
 
 always_ff @(posedge clk or negedge rst_n) begin
   if(!rst_n)
-    vecproc_rd1_addr <=  `DELAY_CK_Q '0;
+    rd1_addr <=  `DELAY_CK_Q '0;
   else if(!pause)
-    vecproc_rd1_addr <=  `DELAY_CK_Q vecproc_rd1_addr_nxt;
+    rd1_addr <=  `DELAY_CK_Q rd1_addr_nxt;
 end
 always_comb begin
   case (fsm_state) inside
-    IDLE  : vecproc_rd1_addr_nxt  = '0;
-    SORT_4ELEM4CYCL : vecproc_rd1_addr_nxt = vecproc_rd1_addr + 1;
-    default : vecproc_rd1_addr_nxt = vecproc_rd1_addr;
+    IDLE  : rd1_addr_nxt  = '0;
+    SORT_4ELEM4CYCL : rd1_addr_nxt = rd1_addr + 1;
+    default : rd1_addr_nxt = rd1_addr;
   endcase
 end
 always_ff @(posedge clk or negedge rst_n) begin
   if(!rst_n)
-    vecproc_wr1_addr <=  `DELAY_CK_Q '0;
+    wr1_addr <=  `DELAY_CK_Q '0;
   else if(!pause) begin
     if(program_data_vld)
-      vecproc_wr1_addr <=  `DELAY_CK_Q vecproc_wr1_addr_nxt;
+      wr1_addr <=  `DELAY_CK_Q wr1_addr_nxt;
   end
 end
 always_comb begin
   case (fsm_state) inside
-    IDLE  : vecproc_wr1_addr_nxt  =  vecproc_wr1_addr + 1;
+    IDLE  : wr1_addr_nxt  =  wr1_addr + 1;
     SORT_4ELEM4CYCL :
-      vecproc_wr1_addr_nxt = '0;
-    default : vecproc_wr1_addr_nxt = 'x;
+      wr1_addr_nxt = '0;
+    default : wr1_addr_nxt = 'x;
   endcase
 end
 
@@ -110,12 +110,12 @@ always_comb begin
   case (fsm_state) inside
     IDLE : begin
       for(int i=0;i<NUM_MEM;i++) begin
-        mem_addr[i] = vecproc_wr1_addr;
+        mem_addr[i] = wr1_addr;
       end
     end
     SORT_4ELEM4CYCL : begin
       for(int i=0;i<NUM_MEM;i++) begin
-        mem_addr[i] = {vecproc_rd1_addr[ADDR_WIDTH-2-1:0],i[1:0]};
+        mem_addr[i] = {rd1_addr[ADDR_WIDTH-2-1:0],i[1:0]};
       end
     end
     default : mem_addr = 'x;
@@ -131,6 +131,6 @@ end
 
 assign mem_wdata = {NUM_MEM{program_data}};
 assign data_to_sort = mem_rdata;
-assign bitonic_sort_done = vecprocdone ^ ((fsm_state==IDLE) && start && !(|sort_elements));
+assign bitonic_sort_done = done ^ ((fsm_state==IDLE) && start && !(|sort_elements));
 assign rdy = (fsm_state==IDLE)&& !pause;
 endmodule : hams_bitonic_sort_ctrl
