@@ -35,6 +35,7 @@ VERILATOR_FLAGS += --trace
 #timing 
 VERILATOR_INPUT += -f ${WORKSPACE}/tb/tool/input.vc 
 VERILATOR_INPUT += -Wno-context -Wno-TIMESCALEMOD --no-timing 
+# VERILATOR_INPUT += -Wno-context -Wno-TIMESCALEMOD --timing 
 VERILATOR_INPUT += ${WORKSPACE}/tb/${TB_TOP}.sv ${WORKSPACE}/tb/tool/${TB_TOP}.cc
 
 
@@ -90,7 +91,7 @@ vsim: check-env
 	cd ${WORKSPACE}/out/build; \
 	vlib.exe work; \
 	export WINWORK=${WINWORK};\
-	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+DELAY_CK_Q=#1 +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
 	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ ${WINWORK}/tb/${TB_TOP}.sv;
 
 vsim_debug: check-env
@@ -101,7 +102,7 @@ vsim_debug: check-env
 	cd ${WORKSPACE}/out/build; \
 	vlib.exe work; \
 	export WINWORK=${WINWORK};\
-	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
+	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ +define+DELAY_CK_Q= +define+SIMULATION -f ${WINWORK}/tb/tool/rtl.f; \
 	vlog.exe -sv -svinputport=relaxed -work work +incdir+${WINWORK}/rtl/systemverilog/ ${WINWORK}/tb/${TB_TOP}.sv; \
 	vlog.exe -work ${WINWORK}/out/build/work -refresh -force_refresh; \
-	vsim.exe  -L work work.${TB_TOP} -t ps  -do "add log -r sim:/tb_top/*;force -freeze sim:/tb_top/clk 1 0, 0 {5000 ps} -r 10000;run 100 us;"
+	vsim.exe  -L work work.${TB_TOP} -t ps  -do "add log -r sim:/tb_top/*;force -freeze sim:/tb_top/clk 1 0, 0 {5000 ps} -r 10000;run -all;"

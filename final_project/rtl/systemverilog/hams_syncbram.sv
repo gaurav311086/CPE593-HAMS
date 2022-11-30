@@ -14,7 +14,7 @@ module hams_syncbram
   output  logic [DATA_WIDTH -1 : 0] rd_data
 );
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
 `ifdef SIMULATION
   logic [DATA_WIDTH -1 : 0] bram_memory [0:DATA_DEPTH - 1] ;

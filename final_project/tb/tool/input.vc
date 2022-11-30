@@ -1,2 +1,2 @@
 // This file typically lists flags required by a large project, e.g. include directories
--sv +librescan +libext+.v+.sv+.vh+.svh -y .
+-sv +librescan +libext+.v+.sv+.vh+.svh -y . +define+DELAY_CK_Q=" "

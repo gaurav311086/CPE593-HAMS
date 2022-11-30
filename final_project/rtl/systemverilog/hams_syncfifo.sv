@@ -15,7 +15,7 @@ module hams_syncfifo
   output  logic [$clog2(FIFO_DEPTH+1):0] enteries
 );
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
   logic [FIFO_DEPTH - 1: 0] [FIFO_WIDTH -1 : 0] fifo_memory;
   logic [$clog2(FIFO_DEPTH+1):0] fifo_rd_pointer, fifo_rd_pointer_nxt;

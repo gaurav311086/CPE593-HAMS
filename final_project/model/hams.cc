@@ -127,7 +127,7 @@ int main(){
   outdata2.open("output_data.txt");
   // write inputted data into the file.
   for (vector<int>::iterator it=myvector.begin(); it!=myvector.end(); ++it)
-    outdata2 << hex << *it << endl;
+    outdata2 << hex << setw(8) << setfill('0') << *it << endl;
   
   // close the opened file.
   outdata2.close();

@@ -22,10 +22,13 @@ module hams_merge_sort_ctrl
   output  logic [NUM_MEM-1:0]                   mem_wr,
   output  logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr,
   output  logic [NUM_MEM-1:0] [DATA_WIDTH-1:0]  mem_wdata,
-  output  logic                                 fifo_pop
+  output  logic                                 fifo_pop,
+  output  pair                                  sorted_data,
+  output  logic                                 sorted_data_vld,
+  output  logic                                 merge_sort_complete
 );
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
 
 localparam logic [2:0] IDLE               = 3'd0;
@@ -39,14 +42,14 @@ localparam logic [2:0] MERGE_DONE         = 3'd6;
 logic [3:0] fsm_state, fsm_state_nxt;
 logic [NUM_MEM-1:0] bitonic_sort_data_vld_i,bitonic_sort_data_vld_i_d;
 logic [NUM_MEM-1:0] mem_wr_colq_ctrl;
+logic [NUM_MEM-1:0] mem_wr_colq_ctrl_d;
 logic [NUM_MEM-1:0] mem_select, mem_select_nxt;
 logic [$clog2(NUM_MEM+1)-1:0] cyc_count, cyc_count_nxt;
 pair  [NUM_MEM-1:0] [NUM_MEM-1:0] bitonic_data_serialized;
 logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr_colq_ctrl, mem_addr_dprep, mem_addr_dprep_d;
 logic [NUM_MEM-1:0] bitonic_sort_done_d;
-logic [8:0] column_length;
 logic colMergeDone;
-
+ 
 assign   bitonic_sort_data_vld_i[0] = bitonic_sort_data_vld;
 always_ff @(posedge clk or negedge rst_n) begin
   if(!rst_n)
@@ -103,12 +106,6 @@ always_ff @(posedge clk) begin
 end
 always_ff @(posedge clk) begin
   bitonic_sort_done_d <=  {bitonic_sort_done_d[NUM_MEM-2:0],bitonic_sort_done};
-end
-always_ff @(posedge clk) begin
-  if(bitonic_sort_done)
-    column_length <= 9'd4;
-  else if(colMergeDone)
-    column_length <= {column_length[6:0],2'b00};
 end
 always_ff @(posedge clk or negedge rst_n) begin
   if(!rst_n)
@@ -171,7 +168,7 @@ always_comb begin
         fsm_state_nxt =  MERGE_256ELEMS;
     end
     MERGE_DONE : begin
-      fsm_state_nxt =  MERGE_DONE;
+      fsm_state_nxt =  IDLE;
     end
     default: begin
       fsm_state_nxt =  IDLE;
@@ -179,7 +176,38 @@ always_comb begin
   endcase
 end
 
-logic fifo_push;
+logic fifo_push,fifo_pop_int,fifo_pop_int_d;
+logic param_req;
+logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  init;
+logic               [ADDR_WIDTH-1:0]  stride;
+logic               [ADDR_WIDTH-1:0]  loop_limit;
+logic               [ADDR_WIDTH:0]    stride_limit;
+always_ff @(posedge clk) begin
+  if(start)
+    init  <=  `DELAY_CK_Q {10'd12,10'd8,10'd4,10'd0};
+  else if(param_req) begin
+    for(int i=0;i<NUM_MEM;i++)
+      init[i]  <=  `DELAY_CK_Q init[i]<<2;
+  end
+end
+
+always_ff @(posedge clk) begin
+  if(start)
+    stride  <=  `DELAY_CK_Q 10'd16;
+  else if(param_req) begin
+    stride  <=  `DELAY_CK_Q stride<<2;
+  end
+end
+
+always_ff @(posedge clk) begin
+  if(start)
+    loop_limit  <=  `DELAY_CK_Q 10'd4;
+  else if(param_req) begin
+    loop_limit  <=  `DELAY_CK_Q loop_limit<<2;
+  end
+end
+
+assign stride_limit = 11'd1024;
 
 hams_merge_sort_colq_ctrl 
 #(
@@ -190,20 +218,35 @@ addrGen
 (
   .clk(clk),
   .rst_n(rst_n),
-  .fifo_full(fifo_full),
-  .fifo_empty(fifo_empty),
-  .fifo_pop(fifo_pop),
+  .fifo_full('0),
+  .fifo_empty('0),
+  .fifo_pop(fifo_pop_int),
   .start(bitonic_sort_done_d[NUM_MEM-1] || (colMergeDone && (fsm_state != MERGE_256ELEMS))),
   .pause(pause),
-  .init({10'd12,10'd8,10'd4,10'd0}),
-  .stride(10'd16),
-  .loop_limit(10'd4),
-  .stride_limit(11'd1024),
+  .init(init),
+  .stride(stride),
+  .loop_limit(loop_limit),
+  .stride_limit(stride_limit),
+  .param_req(param_req),
   .mem_wr(mem_wr_colq_ctrl),
   .mem_addr(mem_addr_colq_ctrl),
   .done(colMergeDone),
   .fifo_push(fifo_push)
 );
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n)
+    mem_wr_colq_ctrl_d <=  `DELAY_CK_Q '0;
+  else begin
+    mem_wr_colq_ctrl_d <=  `DELAY_CK_Q mem_wr_colq_ctrl;
+  end
+end
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n)
+    fifo_pop_int_d <=  `DELAY_CK_Q '0;
+  else begin
+    fifo_pop_int_d <=  `DELAY_CK_Q fifo_pop_int;
+  end
+end
 always_ff @(posedge clk or negedge rst_n) begin
   if(!rst_n)
     unsort_data_out_vld <=  `DELAY_CK_Q '0;
@@ -219,10 +262,21 @@ always_ff @(posedge clk or negedge rst_n) begin
     fsm_state <=  `DELAY_CK_Q fsm_state_nxt;
 end
 
+
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n)
+    sorted_data_vld <=  `DELAY_CK_Q '0;
+  else if(!pause)
+    sorted_data_vld <=  `DELAY_CK_Q (fsm_state==MERGE_256ELEMS)&&fifo_pop_int;
+end
+
 assign mem_wdata = (fsm_state > PREP_MERGE_4ELEMS)? {NUM_MEM{merge_sort_data}} :
                     {bitonic_data_serialized[3][0],bitonic_data_serialized[2][0],
                     bitonic_data_serialized[1][0],bitonic_data_serialized[0][0]};
 assign mem_addr = mem_addr_dprep_d;
-assign mem_wr = (fsm_state > PREP_MERGE_4ELEMS)? mem_wr_colq_ctrl : bitonic_sort_data_vld_i_d;
+assign mem_wr = mem_wr_colq_ctrl_d | bitonic_sort_data_vld_i_d;
 assign unsort_data_out = mem_rdata;
+assign fifo_pop = fifo_pop_int_d;
+assign merge_sort_complete = (fsm_state == MERGE_DONE);
+assign sorted_data = merge_sort_data;
 endmodule : hams_merge_sort_ctrl

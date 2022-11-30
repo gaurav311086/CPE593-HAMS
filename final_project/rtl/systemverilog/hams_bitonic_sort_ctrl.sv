@@ -23,7 +23,7 @@ module hams_bitonic_sort_ctrl
   output  logic                                 rdy
 );
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
 
 localparam logic [1:0] IDLE = 2'd0;

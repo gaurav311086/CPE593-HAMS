@@ -16,7 +16,7 @@ module hams_4to1_merge_sort
   output  pair                                  sort_data_o 
 );
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
 pair colA_data,colB_data,colC_data,colD_data;
 pair colA_dataO,colB_dataO,colC_dataO,colD_dataO;

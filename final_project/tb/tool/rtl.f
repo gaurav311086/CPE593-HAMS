@@ -10,3 +10,4 @@
 ../../rtl/systemverilog/hams_merge_sort_colq_ctrl.sv
 ../../rtl/systemverilog/hams_merge_sort_ctrl.sv
 ../../rtl/systemverilog/hams_merge_sort_top.sv
+../../rtl/systemverilog/hams_top.sv

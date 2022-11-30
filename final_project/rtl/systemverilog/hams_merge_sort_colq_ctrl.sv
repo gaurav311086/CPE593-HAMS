@@ -15,6 +15,7 @@ module hams_merge_sort_colq_ctrl
   input   logic               [ADDR_WIDTH-1:0]  stride,
   input   logic               [ADDR_WIDTH-1:0]  loop_limit,
   input   logic               [ADDR_WIDTH:0]    stride_limit,
+  output  logic                                 param_req,
   output  logic                                 done,
   output  logic                                 fifo_pop,
   output  logic                                 fifo_push,
@@ -22,7 +23,7 @@ module hams_merge_sort_colq_ctrl
   output  logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr
 );
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
 
 
@@ -30,7 +31,8 @@ logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr_o;
 logic [ADDR_WIDTH-1:0]  loop_cnt_i;
 logic [ADDR_WIDTH:0]  stride_rd;
 logic [ADDR_WIDTH:0]  stride_wr;
-logic  read_done;
+logic  read_done,read_done_d;
+logic  write_done;
 logic  write_now;
 
 always_ff @(posedge clk) begin
@@ -60,7 +62,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         if(loop_cnt_i==loop_limit-1)
           fifo_push_i <= `DELAY_CK_Q '0;
       end
-      else if(write_now && !fifo_empty && (mem_addr_o[0]==stride_wr-1))
+      else if(write_now && !fifo_empty && (mem_addr_o[0]==stride_wr-1) && !read_done)
         fifo_push_i <= `DELAY_CK_Q '1;
     end
   end
@@ -103,7 +105,7 @@ always_ff @(posedge clk or negedge rst_n) begin
     write_now <=`DELAY_CK_Q '0;
   else begin
     if(!pause) begin
-      if(start || ((write_now && !fifo_empty) && (mem_addr_o[0]==stride_wr-1)))
+      if(start || ((write_now && !fifo_empty) && (mem_addr_o[0]==stride_wr-1)) || done )
         write_now <=`DELAY_CK_Q '0;
       else if((loop_cnt_i==loop_limit-1))
         write_now <=`DELAY_CK_Q 1'b1;
@@ -118,11 +120,35 @@ always_ff @(posedge clk or negedge rst_n) begin
     if(!pause) begin
       if(start)
         read_done <=`DELAY_CK_Q '0;
-      else if((stride_rd==stride_limit) && (loop_cnt_i==loop_limit-1))
+      else if(((stride_rd==stride_limit) || !(|stride_rd)) && (loop_cnt_i==loop_limit-1))
         read_done <=`DELAY_CK_Q 1'b1;
     end
   end
 end
+
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n)
+    read_done_d <=`DELAY_CK_Q '0;
+  else begin
+    if(!pause) begin
+      read_done_d <=`DELAY_CK_Q read_done;
+    end
+  end
+end
+
+always_ff @(posedge clk or negedge rst_n) begin
+  if(!rst_n)
+    write_done <=`DELAY_CK_Q '0;
+  else begin
+    if(!pause) begin
+      if(start)
+        write_done <=`DELAY_CK_Q '0;
+      else if(read_done && (write_now && !fifo_empty) && (&mem_addr_o[0]))
+        write_done <=`DELAY_CK_Q 1'b1;
+    end
+  end
+end
+
 
 always_ff @(posedge clk) begin
   if(!pause) begin
@@ -145,6 +171,7 @@ end
 
 assign mem_addr = mem_addr_o;
 assign mem_wr = {NUM_MEM{write_now}};
-assign done = (write_now && !fifo_empty) && read_done && (mem_addr_o[0]==stride_wr-1);
+assign done = (write_now && !fifo_empty) && read_done && (&mem_addr_o[0]);
 assign fifo_pop = write_now && !pause;
+assign param_req = read_done && !read_done_d;
 endmodule : hams_merge_sort_colq_ctrl

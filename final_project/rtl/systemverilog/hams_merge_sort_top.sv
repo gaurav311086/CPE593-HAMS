@@ -13,7 +13,9 @@ module hams_merge_sort_top
   input   pair  [NUM_MEM-1:0]                   bitonic_sort_data,
   input   logic                                 bitonic_sort_data_vld,
   input   logic                                 bitonic_sort_done,
-  output  logic                                 done
+  output  logic                                 done,
+  output  pair                                  sorted_data,
+  output  logic                                 sorted_data_vld
 );
 logic [NUM_MEM-1:0]                   mem_wr;
 logic [NUM_MEM-1:0] [ADDR_WIDTH-1:0]  mem_addr;
@@ -48,7 +50,10 @@ merge_sort_ctrl
   .mem_rdata(mem_rdata),
   .mem_wr(mem_wr),
   .mem_addr(mem_addr),
-  .mem_wdata(mem_wdata)
+  .mem_wdata(mem_wdata),
+  .sorted_data(sorted_data),
+  .sorted_data_vld(sorted_data_vld),
+  .merge_sort_complete(done)
 );
 
 
@@ -122,5 +127,4 @@ mem_d
   .addr(mem_addr[3]),
   .rd_data(mem_rdata[3])
 );
-// assign bitonic_sort_complete = bitonic_sort_done;
 endmodule: hams_merge_sort_top

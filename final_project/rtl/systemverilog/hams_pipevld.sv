@@ -11,7 +11,7 @@ module hams_pipevld
 );
 
 `ifndef DELAY_CK_Q
-  `define DELAY_CK_Q #1
+  // `define DELAY_CK_Q #1
 `endif
 
 generate
