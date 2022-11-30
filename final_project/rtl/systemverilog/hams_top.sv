@@ -27,6 +27,9 @@ logic bitonic_sorted_buf_vld_n;
 logic bitonic_sort_done_d, bitonic_sort_done_dd;
 
 hams_bitonic_sort_top
+#(
+.ADDR_WIDTH(ADDR_WIDTH)
+)
 bitonic_sort4elem
 (
   .start(start),

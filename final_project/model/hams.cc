@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include <chrono>
 using namespace std;
 
 #undef DBLINKEDLIST
@@ -84,6 +85,7 @@ void  fischeryates_shuffle(uint32_t * a, uint32_t lo, uint32_t hi){
 }
 
 int main(){
+  using std::chrono::high_resolution_clock;
   constexpr uint32_t size = 1024;
   // LinkedList ll;
   uint32_t * unq_data = new uint32_t[size];
@@ -131,6 +133,16 @@ int main(){
   
   // close the opened file.
   outdata2.close();
+      
+      
+  clock_t start, end;
+  
+  vector<int> myvector1 (unq_data, unq_data+size);
+  auto t1 = high_resolution_clock::now();
+  sort (myvector1.begin(), myvector1.end());
+  auto t2 = high_resolution_clock::now();
+  std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+  cout << "Total cycles used for sorting "<< size <<" elememts :" << ms_double.count() << "ms" << endl;
   
   delete [] unq_data;
   

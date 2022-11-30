@@ -72,6 +72,9 @@ initial begin
 end
 
 hams_top
+#(
+.ADDR_WIDTH(ADDR_WIDTH)
+)
 dut 
 (
   .clk,
