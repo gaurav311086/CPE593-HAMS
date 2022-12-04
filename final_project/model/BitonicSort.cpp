@@ -8,6 +8,12 @@
 #include <chrono>
 using namespace std;
 
+// prints the array
+void printit(uint32_t array[], uint32_t size){
+    for(int i = 0; i < size; i++){
+        std::cout << array[i] << std::endl;
+    }
+}
 
 // puts the pair of values in the requested order from bitonicSort (ascending or descending)
 void orderPair(uint32_t array[], uint32_t i, uint32_t j, uint32_t order){
@@ -18,7 +24,7 @@ void orderPair(uint32_t array[], uint32_t i, uint32_t j, uint32_t order){
     }
 }
 
-// Merges in the sorted values back into the array
+// Merges in the sorted portions in ascending order
 void bitonicMerge(uint32_t array[], uint32_t low, uint32_t size, uint32_t order){
     if (size > 1){
         uint32_t k = size/2;
@@ -43,7 +49,7 @@ void bitonicSort(uint32_t array[], uint32_t low, uint32_t size, uint32_t order){
 }
 
 // begins the bitonicSort
-void sort(uint32_t array[], uint32_t size, uint32_t order){
+void bitsort(uint32_t array[], uint32_t size, uint32_t order){
     bitonicSort(array, 0, size, order);
 }
 
@@ -63,13 +69,6 @@ void  fischeryates_shuffle(uint32_t array[], uint32_t lo, uint32_t hi){
         uint32_t random_i = ((uint32_t) random())%(hi-lo+1);
         uint32_t r = lo + random_i;
         exchange(array,r,i);
-    }
-}
-
-// prints the array
-void printit(uint32_t array[], uint32_t size){
-    for(int i = 0; i < size; i++){
-        std::cout << array[i] << std::endl;
     }
 }
 
@@ -100,7 +99,7 @@ int main(){
 
     // sorts the array and calculates the time to sort it
     auto t1 = high_resolution_clock::now();
-    sort(array, size, dir);
+    bitsort(array, size, dir);
     auto t2 = high_resolution_clock::now();
     std::chrono::duration<double, std::milli> ms_double = t2 - t1;
 
@@ -112,7 +111,7 @@ int main(){
     data.close();
 
     // outputs the time to sort the array
-    std::cout << "Total cycles used for sorting "<< size <<" elememts :" << ms_double.count() << "ms" << std::endl;
+    std::cout << "Total cycles used for sorting "<< size <<" elements :" << ms_double.count() << "ms" << std::endl;
 
     // printit(array, size);
 
