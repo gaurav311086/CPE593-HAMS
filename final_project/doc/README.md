@@ -10,7 +10,8 @@
 ## Proposed Hardware Implementation
 [Final Project Presentation](https://github.com/gaurav311086/CPE593-HAMS/blob/23ca78420031f9301bb1f6ba5d25d0e6d03cc85a/final_project/doc/Hardware_accelerated_sorting.pdf)
 
-## High throughput merge sort
+## FLiMS: a Fast Lightweight 2-way Merger for Sorting
+[High throughput merge sort]
 (https://arxiv.org/pdf/2112.05607.pdf)
 
 ## Verilator-Open source System-Verilog simulator
