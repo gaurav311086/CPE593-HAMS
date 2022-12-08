@@ -1,0 +1,9 @@
+mv Slide1.PNG merge_serial1.PNG
+mv Slide2.PNG merge_serial2.PNG
+mv Slide3.PNG merge_serial3.PNG
+mv Slide4.PNG merge_serial4.PNG
+mv Slide5.PNG merge_serial5.PNG
+mv Slide6.PNG merge_serial6.PNG
+mv Slide7.PNG merge_serial7.PNG
+mv Slide8.PNG merge_serial8.PNG
+mv Slide9.PNG merge_serial9.PNG
