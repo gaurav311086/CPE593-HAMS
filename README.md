@@ -3,7 +3,16 @@
 
 This repository contains all the files for CPE-593 mini projects and the CPE-593 final project.
 
-Repository structure:
+```bash
+tree -d -L 1
+./
+├── final_project (Final project)
+└── mini_project_01 (mini project)
+
+2 directories
+```
+
+Complete Repository structure:
 ```bash
 ./
 ├── README.md
