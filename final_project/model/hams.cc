@@ -6,67 +6,6 @@
 #include <chrono>
 using namespace std;
 
-#undef DBLINKEDLIST
-
-#ifdef DBLINKEDLIST
-class LinkedList {
-private:
-	class Node {
-	public:
-		Node* next;
-		uint32_t key;    
-    Node(uint32_t v, Node* nxt) : key(v),nxt(nxt) {}
-	};
-
-	Node* head;
-	Node* tail;
-  int   size;
-public:
-	LinkedList() : head(nullptr),tail(nullptr),size(0) {}
-  
-  ~LinkedList() {
-    Node *p = head;
-    while(p){
-      Node * delThisNode = p;
-      p=p->next;
-      delete delThisNode;
-    }
-    head=nullptr;
-    tail=nullptr;
-    size=0;
-  }
-	void addStart(int v) {
-    head=new Node(v,head);
-    if(!tail)
-      tail = head;
-    size++;
-	}
-
-	void addEnd(int v) {
-    Node * tmp = tail;
-    tail=new Node(v,nullptr);
-    if(tmp)
-      tmp->next = tail;
-    if(!head)
-      head = tail;
-    size++;
-	}
-	// implement to print out the list
-*    // s << "{";
-    Node * p;
-    if(!list.head)
-      return s;
-    for(p=list.head;p!=nullptr;p=p->next){
-      if(p->next != nullptr)
-        s << p->val << ",";
-      else
-        s << p->val;
-    }
-    // s << "}";
-    return s;
-	}
-};
-#endif
 
 void exchange(uint32_t * a,uint32_t l, uint32_t r) {
   if(!a || (l==r))
