@@ -3,6 +3,8 @@
 
 This repo contains HDL implementation of harware accelerated merge sort algorithm in FPGA using high-performance vector stream processing. 
 
+Project instruction are at the bottom of this doc.
+
 Directories: 
 ```bash
 ./
