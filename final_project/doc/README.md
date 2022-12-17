@@ -15,3 +15,13 @@
 
 ## Verilator-Open source System-Verilog simulator
 [Tool document](https://github.com/gaurav311086/CPE593-HAMS/blob/3b483f4bd13a7e4366937b20d93a53489652908b/final_project/doc/tools/verilator_doc.pdf)
+
+
+#Project instructions
+
+##Project requirements: 
+###Install modelsim. 
+Free version can be downloaded [from] (https://www.intel.com/content/www/us/en/software-kit/750536/modelsim-intel-fpgas-pro-edition-software-version-20-3.html) for linux and windows systems.
+
+##To run simulation:
+make vsim_debug
