@@ -21,5 +21,7 @@
 ### Install modelsim. 
 Free version can be downloaded [from](https://www.intel.com/content/www/us/en/software-kit/750536/modelsim-intel-fpgas-pro-edition-software-version-20-3.html) for linux and windows systems.
 
-##To run simulation:
+## To run simulation:
+go to main directory i.e. go one level up relative to this directory.
+source setup.sh
 make vsim_debug
