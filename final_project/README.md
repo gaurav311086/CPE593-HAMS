@@ -3,7 +3,35 @@
 
 This repo contains HDL implementation of harware accelerated merge sort algorithm in FPGA using high-performance vector stream processing. 
 
-Repository structure:
+Directories: 
+```bash
+./
+├── doc
+│   ├── overleaf (this contains overleaf project files)
+│   │   ├── animation_files (these files are used to create animation images and are not directly consumed by overleaf project)
+│   │   │   ├── address
+│   │   │   ├── address_parallel
+│   │   │   ├── address_serial
+│   │   │   ├── fifo_network
+│   │   │   │   └── fifo_nwk
+│   │   │   └── merge_serial
+│   │   └── project_files (This is overleaf project)
+│   │       ├── impl3_animation
+│   │       └── merge_sort_animation
+│   ├── presentation (Final proesentation)
+│   ├── ref (reference papers)
+│   ├── report (Final project report --> output of overleaf project)
+│   └── tools (Tool related doc )
+├── model (C++ code used to generate test vectors for HDL simulation)
+├── rtl ( project HDL written in system verilog)
+│   └── systemverilog
+└── tb (HDL testbench)
+    └── tool
+
+21 directories
+```
+
+Complete repository structure:
 ```bash
 ./
 ├── Makefile
