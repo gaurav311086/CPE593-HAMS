@@ -19,7 +19,7 @@
 # Project Instructions 
 ## Project requirements: 
 ### Install modelsim. 
-Free version can be downloaded [from] (https://www.intel.com/content/www/us/en/software-kit/750536/modelsim-intel-fpgas-pro-edition-software-version-20-3.html) for linux and windows systems.
+Free version can be downloaded [from](https://www.intel.com/content/www/us/en/software-kit/750536/modelsim-intel-fpgas-pro-edition-software-version-20-3.html) for linux and windows systems.
 
 ##To run simulation:
 make vsim_debug
